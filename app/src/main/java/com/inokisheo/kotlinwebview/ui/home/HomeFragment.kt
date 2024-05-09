@@ -35,6 +35,13 @@ class HomeFragment : Fragment() {
         webView.settings.allowContentAccess = true
         webView.settings.allowFileAccessFromFileURLs = true
         webView.settings.allowUniversalAccessFromFileURLs = true
+
+        val assetLoader = WebViewAssetLoader.Builder()
+            .addPathHandler("/assets/", AssetsPathHandler(this))
+            .addPathHandler("/res/", ResourcesPathHandler(this))
+            .build()
+        webView.webViewClient = LocalContentWebViewClient(assetLoader)
+
        // webView.settings.allowExternalNavigation = true
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
