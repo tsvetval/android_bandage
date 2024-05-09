@@ -1,7 +1,12 @@
 package com.inokisheo.kotlinwebview
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import androidx.annotation.RequiresApi
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -11,6 +16,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewClientCompat
 import com.inokisheo.kotlinwebview.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -53,5 +60,22 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+}
+class LocalContentWebViewClient(private val assetLoader: WebViewAssetLoader) : WebViewClientCompat() {
+    @RequiresApi(21)
+    override fun shouldInterceptRequest(
+        view: WebView,
+        request: WebResourceRequest
+    ): WebResourceResponse? {
+        return assetLoader.shouldInterceptRequest(request.url)
+    }
+
+    // To support API < 21.
+    override fun shouldInterceptRequest(
+        view: WebView,
+        url: String
+    ): WebResourceResponse? {
+        return assetLoader.shouldInterceptRequest(Uri.parse(url))
     }
 }

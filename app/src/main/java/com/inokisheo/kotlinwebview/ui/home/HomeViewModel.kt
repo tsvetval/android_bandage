@@ -13,7 +13,7 @@ class HomeViewModel : ViewModel() {
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {
-        _url.value = "https://www.google.com/"
+        _url.value = "https://appassets.androidplatform.net/assets/index.html"
         _isLoading.value = true
     }
 

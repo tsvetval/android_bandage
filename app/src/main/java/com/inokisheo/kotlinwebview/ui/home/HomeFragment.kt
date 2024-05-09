@@ -12,6 +12,8 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.webkit.WebViewAssetLoader
+import com.inokisheo.kotlinwebview.LocalContentWebViewClient
 import com.inokisheo.kotlinwebview.R
 import com.inokisheo.kotlinwebview.databinding.FragmentHomeBinding
 
@@ -37,32 +39,39 @@ class HomeFragment : Fragment() {
         webView.settings.allowUniversalAccessFromFileURLs = true
 
         val assetLoader = WebViewAssetLoader.Builder()
-            .addPathHandler("/assets/", AssetsPathHandler(this))
-            .addPathHandler("/res/", ResourcesPathHandler(this))
+            .addPathHandler(
+                "/assets/",
+                WebViewAssetLoader.AssetsPathHandler(getActivity()!!.peekAvailableContext()!!)
+            )
+            .addPathHandler(
+                "/res/",
+                WebViewAssetLoader.ResourcesPathHandler(getActivity()!!.peekAvailableContext()!!)
+            )
             .build()
         webView.webViewClient = LocalContentWebViewClient(assetLoader)
 
-       // webView.settings.allowExternalNavigation = true
-        webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                // Handling the URL
-                if (view != null && url != null) {
-                   view.loadUrl(url)
-                }
-                return super.shouldOverrideUrlLoading(view, url)
-            }
+        webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
+        // webView.settings.allowExternalNavigation = true
+        /*        webView.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                        // Handling the URL
+                        if (view != null && url != null) {
+                           view.loadUrl(url)
+                        }
+                        return super.shouldOverrideUrlLoading(view, url)
+                    }
 
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                progressBar.isVisible=true
-            }
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        super.onPageStarted(view, url, favicon)
+                        progressBar.isVisible=true
+                    }
 
-            override fun onPageFinished(view: WebView?, url: String?) {
-                progressBar.isVisible =false
-                
-                super.onPageFinished(view, url)
-            }
-        }
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        progressBar.isVisible =false
+
+                        super.onPageFinished(view, url)
+                    }
+                }*/
 
 
         return root
