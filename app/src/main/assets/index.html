@@ -16,14 +16,17 @@
 <p>This file is loaded from in-app content.</p>
 <p>This file is loaded from in-app content.</p>
 <div class="col-xs-8">
-    <canvas id="totalStudents" style="max-height:200px"></canvas>
+    <canvas id="temperatureChart" style="max-height:200px"></canvas>
+</div>
+<div class="col-xs-8">
+    <canvas id="impedanceChart" style="max-height:200px"></canvas>
 </div>
 
 <script type="text/javascript">
     function drawCharts() {
-        const labels =  [65, 59, 80, 81, 56, 55, 40];
-        const chartData = {
-          labels: labels,
+        const temperatureLabels =  generateTime(7);
+        const temperatureChartData = {
+          labels: temperatureLabels,
           datasets: [{
             label: 'Температура',
             data: [34, 36, 36, 35, 36, 35, 36],
@@ -33,10 +36,10 @@
           }]
         };
 
-        const temperatureChart =  document.getElementById('totalStudents');
+        const temperatureChart =  document.getElementById('temperatureChart');
         new Chart(temperatureChart, {
             type: 'line',
-            data: chartData,
+            data: temperatureChartData,
             options: {
                 scales: {
                     y: {
@@ -57,6 +60,57 @@
             }
           });
 
+
+        const impedanceLabels =  generateTime(7);
+        const impedanceChartData = {
+          labels: impedanceLabels,
+          datasets: [{
+            label: 'Импеданс',
+            data: [100, 150, 300, 400, 400, 450, 500],
+            fill: false,
+            borderColor: 'orange',
+            tension: 0.5
+          }]
+        };
+
+        const impedanceChart =  document.getElementById('impedanceChart');
+        new Chart(impedanceChart, {
+            type: 'line',
+            data: impedanceChartData,
+            options: {
+                scales: {
+                    y: {
+                        suggestedMin: 0,
+                        suggestedMax: 1000
+                    }
+                },
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: false,
+                    text: 'Импеданс'
+                  }
+                }
+            }
+          });
+    }
+    function generateTime(points) {
+      var result = [];
+      var today = new Date();
+      today.setMinutes(today.getMinutes() - (5*(points-1)));
+
+
+      for (let i = 0; i < points; i++) {
+        var h = today.getHours();
+        var m = today.getMinutes();
+        //result.push(today.toLocaleTimeString());
+        result.push(String(h).padStart(2, "0") +":"+ String(m).padStart(2, "0"));
+        today.setMinutes(today.getMinutes() + 5);
+      }
+      return result;
     }
 </script>
 
