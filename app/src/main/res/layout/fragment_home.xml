@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+<!--
     <ProgressBar
         android:id="@+id/progress_home"
         android:layout_width="wrap_content"
@@ -25,5 +26,6 @@
         app:layout_constraintEnd_toEndOf="@id/webview_home"
         app:layout_constraintStart_toStartOf="@id/webview_home"
         app:layout_constraintTop_toTopOf="@id/webview_home" />
+-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

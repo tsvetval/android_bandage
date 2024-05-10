@@ -1,14 +1,66 @@
 <!-- index.html content -->
 
 <html>
-    <head>
-        <!-- Tip: Use relative URLs when referring to other in-app content to give
-                  your app code the flexibility to change the scheme or domain as
-                  necessary. -->
-        <link rel="stylesheet" href="/assets/stylesheet.css">
-    </head>
-    <body>
-        <p>This file is loaded from in-app content.</p>
-        <p><img src="/res/drawable/bandage_icon.png" alt="Android robot" width="100"></p>
-    </body>
+<head>
+    <!-- Tip: Use relative URLs when referring to other in-app content to give
+              your app code the flexibility to change the scheme or domain as
+              necessary. -->
+    <link rel="stylesheet" href="/assets/stylesheet.css">
+    <script src="/assets/chart.js"></script>
+    <script>
+        alert('12');
+    </script>
+    <title></title>
+</head>
+<body onload="drawCharts();">
+<p>This file is loaded from in-app content.</p>
+<p>This file is loaded from in-app content.</p>
+<div class="col-xs-8">
+    <canvas id="totalStudents" style="max-height:200px"></canvas>
+</div>
+
+<script type="text/javascript">
+    function drawCharts() {
+        const labels =  [65, 59, 80, 81, 56, 55, 40];
+        const chartData = {
+          labels: labels,
+          datasets: [{
+            label: 'Температура',
+            data: [34, 36, 36, 35, 36, 35, 36],
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.5
+          }]
+        };
+
+        const temperatureChart =  document.getElementById('totalStudents');
+        new Chart(temperatureChart, {
+            type: 'line',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        suggestedMin: 30,
+                        suggestedMax: 45
+                    }
+                },
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                  },
+                  title: {
+                    display: false,
+                    text: 'Температура'
+                  }
+                }
+            }
+          });
+
+    }
+</script>
+
+</body>
 </html>
+
+

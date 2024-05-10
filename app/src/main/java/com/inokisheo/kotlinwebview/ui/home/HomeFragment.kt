@@ -13,6 +13,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.webkit.WebViewAssetLoader
+import com.inokisheo.kotlinwebview.BuildConfig
 import com.inokisheo.kotlinwebview.LocalContentWebViewClient
 import com.inokisheo.kotlinwebview.R
 import com.inokisheo.kotlinwebview.databinding.FragmentHomeBinding
@@ -20,7 +21,7 @@ import com.inokisheo.kotlinwebview.databinding.FragmentHomeBinding
 class HomeFragment : Fragment() {
 
     private lateinit var webView: WebView
-    private lateinit var progressBar: ProgressBar
+    //private lateinit var progressBar: ProgressBar
     private lateinit var viewModel: HomeViewModel
 
     override fun onCreateView(
@@ -29,7 +30,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_home, container, false)
-        progressBar = root.findViewById(R.id.progress_home)
+        //progressBar = root.findViewById(R.id.progress_home)
 
         webView = root.findViewById(R.id.webview_home)
         webView.settings.javaScriptEnabled = true
@@ -37,15 +38,16 @@ class HomeFragment : Fragment() {
         webView.settings.allowContentAccess = true
         webView.settings.allowFileAccessFromFileURLs = true
         webView.settings.allowUniversalAccessFromFileURLs = true
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
         val assetLoader = WebViewAssetLoader.Builder()
             .addPathHandler(
                 "/assets/",
-                WebViewAssetLoader.AssetsPathHandler(getActivity()!!.peekAvailableContext()!!)
+                WebViewAssetLoader.AssetsPathHandler(requireContext())
             )
             .addPathHandler(
                 "/res/",
-                WebViewAssetLoader.ResourcesPathHandler(getActivity()!!.peekAvailableContext()!!)
+                WebViewAssetLoader.ResourcesPathHandler(requireContext())
             )
             .build()
         webView.webViewClient = LocalContentWebViewClient(assetLoader)
