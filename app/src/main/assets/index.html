@@ -7,18 +7,23 @@
               necessary. -->
     <link rel="stylesheet" href="/assets/stylesheet.css">
     <script src="/assets/chart.js"></script>
-    <script>
-        alert('12');
-    </script>
-    <title></title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap-theme.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="/assets/bootstrap/js/bootstrap.min.js" ></script>
 </head>
 <body onload="drawCharts();">
-<p>This file is loaded from in-app content.</p>
-<p>This file is loaded from in-app content.</p>
-<div class="col-xs-8">
+<div class="container">
+    <div class="row">
+        <div class="col-md-2">Профиль пациента</div>
+        <div class="col-md-2">Профиль пациента</div>
+    </div>
+</div>
+<div>
     <canvas id="temperatureChart" style="max-height:200px"></canvas>
 </div>
-<div class="col-xs-8">
+<div >
     <canvas id="impedanceChart" style="max-height:200px"></canvas>
 </div>
 
