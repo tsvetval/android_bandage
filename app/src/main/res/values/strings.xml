@@ -5,9 +5,9 @@
     <string name="nav_header_title">Умная повязка</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Настройки</string>
 
-    <string name="menu_home">Home</string>
+    <string name="menu_home">Кабинет пациента</string>
     <string name="menu_gallery">Privacy policy</string>
-    <string name="menu_slideshow">About us</string>
+    <string name="menu_slideshow">О нас</string>
 </resources>
