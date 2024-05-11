@@ -45,7 +45,7 @@ class HomeFragment : Fragment() {
             )
             .build()
         webView.webViewClient = LocalContentWebViewClient(assetLoader)
-
+        //webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         webView.loadUrl("https://appassets.androidplatform.net/assets/index.html")
         // webView.settings.allowExternalNavigation = true
         /*        webView.webViewClient = object : WebViewClient() {
