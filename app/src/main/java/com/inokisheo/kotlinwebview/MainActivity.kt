@@ -2,12 +2,12 @@ package com.inokisheo.kotlinwebview
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import androidx.annotation.RequiresApi
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,11 +24,15 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
+    private val TAG = "MyActivity";
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        try {
         binding = ActivityMainBinding.inflate(layoutInflater)
+        } catch (e: Throwable){
+            Log.v(TAG, "index=" + e);
+        }
+
         setContentView(binding.root)
 
         setSupportActionBar(binding.appBarMain.toolbar)

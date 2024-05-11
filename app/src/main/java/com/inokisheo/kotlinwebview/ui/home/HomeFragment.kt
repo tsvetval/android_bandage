@@ -1,22 +1,16 @@
 package com.inokisheo.kotlinwebview.ui.home
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import android.webkit.WebViewClient
-import android.widget.ProgressBar
-import android.widget.TextView
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.webkit.WebViewAssetLoader
 import com.inokisheo.kotlinwebview.BuildConfig
 import com.inokisheo.kotlinwebview.LocalContentWebViewClient
 import com.inokisheo.kotlinwebview.R
-import com.inokisheo.kotlinwebview.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
@@ -87,7 +81,7 @@ class HomeFragment : Fragment() {
             webView.loadUrl(url)
         }
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            //progressBar.isVisible = isLoading
+            //progressBar.isVisible = isL6oading
         }
     }
 
