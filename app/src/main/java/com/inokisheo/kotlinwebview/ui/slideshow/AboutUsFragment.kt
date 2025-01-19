@@ -6,17 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.webkit.WebViewAssetLoader
 import com.inokisheo.kotlinwebview.BuildConfig
 import com.inokisheo.kotlinwebview.LocalContentWebViewClient
 import com.inokisheo.kotlinwebview.R
-import com.inokisheo.kotlinwebview.databinding.FragmentSlideshowBinding
-import com.inokisheo.kotlinwebview.ui.home.HomeViewModel
+import com.inokisheo.kotlinwebview.databinding.AboutUsBinding
 
-class SlideshowFragment : Fragment() {
+class AboutUsFragment : Fragment() {
 
-    private var _binding: FragmentSlideshowBinding? = null
+    private var _binding: AboutUsBinding? = null
     private lateinit var webView: WebView
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -28,8 +26,7 @@ class SlideshowFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val root = inflater.inflate(R.layout.fragment_slideshow, container, false)
-        //progressBar = root.findViewById(R.id.progress_home)
+        val root = inflater.inflate(R.layout.about_us, container, false)
 
         webView = root.findViewById(R.id.webview_about)
         webView.settings.javaScriptEnabled = true
@@ -56,14 +53,6 @@ class SlideshowFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-//        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-//        viewModel.url.observe(viewLifecycleOwner) { url ->
-//            webView.loadUrl(url)
-//        }
-//        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-//            //progressBar.isVisible = isL6oading
-//        }
     }
 
     override fun onDestroyView() {
@@ -71,8 +60,4 @@ class SlideshowFragment : Fragment() {
         webView.destroy()
         super.onDestroyView()
     }
-/*    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }*/
 }
