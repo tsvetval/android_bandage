@@ -19,7 +19,6 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 import com.google.android.material.navigation.NavigationView
 import com.inokisheo.kotlinwebview.databinding.ActivityMainBinding
-import com.inokisheo.kotlinwebview.ui.home.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,10 +35,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        /*        binding.appBarMain.fab.setOnClickListener { view ->
-                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show()
-                }*/
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -47,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_slideshow
+                R.id.nav_home, R.id.nav_about_us, R.id.nav_settings
             ), drawerLayout
         )
 
@@ -62,8 +57,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onGroupItemClick(item: MenuItem) {
-        val settingsFragment = SettingsFragment()
-        getSupportFragmentManager().beginTransaction().replace(R.id.settings_fragment, settingsFragment).commit()
+        findNavController(R.id.nav_host_fragment_content_main).navigate(R.id.nav_settings)
+//        val settingsFragment = SettingsFragment()
+//        supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment_content_main, settingsFragment).commit()
         // One of the group items (using the onClick attribute) was clicked.
         // The item parameter passed here indicates which item it is.
         // All other menu item clicks are handled by Activity.onOptionsItemSelected.

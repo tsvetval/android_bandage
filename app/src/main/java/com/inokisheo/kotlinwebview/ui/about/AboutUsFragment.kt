@@ -1,4 +1,4 @@
-package com.inokisheo.kotlinwebview.ui.slideshow
+package com.inokisheo.kotlinwebview.ui.about
 
 import android.os.Bundle
 import android.view.LayoutInflater

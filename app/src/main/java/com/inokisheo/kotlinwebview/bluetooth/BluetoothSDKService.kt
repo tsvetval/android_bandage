@@ -54,7 +54,7 @@ class BluetoothSDKService: Service() {
             val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
             filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
             registerReceiver(discoveryBroadcastReceiver, filter)
-            bluetoothAdapter.startDiscovery()
+            //bluetoothAdapter.startDiscovery()
             pushBroadcastMessage(BluetoothUtils.ACTION_DISCOVERY_STARTED, null, null)
         }
 
@@ -63,7 +63,7 @@ class BluetoothSDKService: Service() {
          * stop discovery
          */
         public fun stopDiscovery() {
-            bluetoothAdapter.cancelDiscovery()
+            //bluetoothAdapter.cancelDiscovery()
             pushBroadcastMessage(BluetoothUtils.ACTION_DISCOVERY_STOPPED, null, null)
         }
 
