@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_about_us, R.id.nav_settings
+                R.id.nav_home, R.id.nav_about_us
             ), drawerLayout
         )
 
@@ -58,11 +58,6 @@ class MainActivity : AppCompatActivity() {
 
     fun onGroupItemClick(item: MenuItem) {
         findNavController(R.id.nav_host_fragment_content_main).navigate(R.id.nav_settings)
-//        val settingsFragment = SettingsFragment()
-//        supportFragmentManager.beginTransaction().replace(R.id.nav_host_fragment_content_main, settingsFragment).commit()
-        // One of the group items (using the onClick attribute) was clicked.
-        // The item parameter passed here indicates which item it is.
-        // All other menu item clicks are handled by Activity.onOptionsItemSelected.
     }
 
     override fun onSupportNavigateUp(): Boolean {
