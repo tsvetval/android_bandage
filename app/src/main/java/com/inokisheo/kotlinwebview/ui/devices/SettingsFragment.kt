@@ -4,10 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothDevice.TRANSPORT_LE
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.le.BluetoothLeScanner
@@ -15,23 +15,26 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inokisheo.kotlinwebview.R
-import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 /**
  * Фрагмент по тображению настроек подключения к устройству
@@ -40,11 +43,16 @@ class SettingsFragment : Fragment() {
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var bluetoothLeScanner: BluetoothLeScanner
     private var bluetoothGatt: BluetoothGatt? = null
-
     private val deviceList: MutableList<BluetoothDevice> = mutableListOf()
-    //private val deviceNames: MutableList<String> = mutableListOf()
+
     private lateinit var recyclerView: RecyclerView
     private lateinit var debugLog: TextView;
+
+    private val handler = Handler()
+
+    // Stops scanning after 10 seconds.
+    private val SCAN_PERIOD: Long = 10000
+
 
     fun Context.bluetoothAdapter(): BluetoothAdapter? =
         (this.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
@@ -54,6 +62,7 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d("MyTag", "Это отладочное сообщение")
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
@@ -80,9 +89,16 @@ class SettingsFragment : Fragment() {
     }
 
     private fun checkPermissionsAndStartScan() {
+        if (!bluetoothAdapter.isEnabled) {
+            debugLog.append( "Bluetooth не поддерживается или отключен")
+        } else {
+            debugLog.append(  "Bluetooth включен и поддерживается")
+        }
+
         if
-                (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
+            (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
@@ -94,6 +110,7 @@ class SettingsFragment : Fragment() {
                     Manifest.permission.BLUETOOTH_ADVERTISE,
                     Manifest.permission.BLUETOOTH_CONNECT,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                 ),
                 1
             )
@@ -102,56 +119,17 @@ class SettingsFragment : Fragment() {
         }
     }
 
-
-    private var scanning = false
-    private val handler = Handler()
-
-    // Stops scanning after 10 seconds.
-    private val SCAN_PERIOD: Long = 10000
-
     @SuppressLint("MissingPermission")
     private fun scanDevices() {
-//        repeat(20){
-//            debugLog.append("test\n\r")
-//        }
-        handler.postDelayed({
-            bluetoothAdapter.bluetoothLeScanner?.stopScan(scanCallback)
-        }, SCAN_PERIOD)
+//        handler.postDelayed({
+//            debugLog.append("postDelayed \n\r")
+//            bluetoothAdapter.bluetoothLeScanner?.stopScan(scanCallback)
+//        }, SCAN_PERIOD)
 
         deviceList.clear()
         recyclerView.adapter?.notifyDataSetChanged()
 
         bluetoothAdapter.bluetoothLeScanner?.startScan(scanCallback)
-/*
-        debugLog.append("start scanDevices\n\r")
-        if (!scanning) { // Stops scanning after a pre-defined scan period.
-            handler.postDelayed({
-                debugLog.append("postDelayed \n\r")
-                scanning = false
-                try {
-                    bluetoothLeScanner.stopScan(scanCallback)
-                } catch (e: Throwable) {
-                    debugLog.append("!postDelayed\n\r" + e.message)
-                }
-            }, SCAN_PERIOD)
-            scanning = true
-            debugLog.append("!scanning\n\r")
-            try {
-                bluetoothLeScanner.startScan(scanCallback)
-            } catch (e: Throwable) {
-                debugLog.append("!scanning\n\r" + e.message)
-            }
-        } else {
-            debugLog.append("!stopScan\n\r")
-            scanning = false
-            try {
-                bluetoothLeScanner.stopScan(scanCallback)
-            } catch (e: Throwable) {
-                debugLog.append("!stopScan\n\r" + e.message)
-            }
-
-        }
-*/
     }
 
     @SuppressLint("MissingPermission")
@@ -169,21 +147,6 @@ class SettingsFragment : Fragment() {
                 }
         }
 
-        override fun onBatchScanResults(results: List<ScanResult>) {
-            debugLog.append("onBatchScanResults\n\r")
-            super.onBatchScanResults(results)
-            for (result in results) {
-                val device = result.device
-
-                if (!deviceList.contains(device)) {
-                    deviceList.add(device)
-                    recyclerView.adapter?.notifyItemInserted(deviceList.size - 1)
-                    //deviceNames.add(device.name + "\n" + device.address)
-                }
-            }
-            //updateListView()
-        }
-
         override fun onScanFailed(errorCode: Int) {
             debugLog.append("onScanFailed\n\r")
             super.onScanFailed(errorCode)
@@ -195,43 +158,55 @@ class SettingsFragment : Fragment() {
         }
     }
 
-/*    private fun updateListView() {
-        debugLog.append("updateListView\n\r")
-        val adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, deviceNames)
-        listView.adapter = adapter
-    }*/
-
     @SuppressLint("MissingPermission")
     override fun onPause() {
         debugLog.append("onPause\n\r")
         super.onPause()
         bluetoothLeScanner.stopScan(scanCallback)
+        bluetoothGatt?.close()
+
     }
 
     @SuppressLint("MissingPermission")
     private fun connectToDevice(device: BluetoothDevice) {
+        bluetoothLeScanner.stopScan(scanCallback)
         debugLog.append("Try to connect ${device.name}\n\r")
-        bluetoothGatt = device.connectGatt(requireContext(), false,
+        lifecycleScope.launch(Dispatchers.IO) {
+        bluetoothGatt = device.connectGatt(activity, false,
             object : BluetoothGattCallback() {
                 override fun onConnectionStateChange(
                     gatt: BluetoothGatt,
                     status: Int,
                     newState: Int
                 ) {
-                    if (newState == BluetoothProfile.STATE_CONNECTED) {
-                        debugLog.append("BluetoothProfile.STATE_CONNECTED device name : ${device.name} gatt: $gatt\n\r")
-                        Toast.makeText(context, "Подключено к ${device.name}", Toast.LENGTH_SHORT)
-                            .show()
-                        gatt.discoverServices()
-                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                        debugLog.append("BluetoothProfile.STATE_DISCONNECTED\n\r")
-                        Toast.makeText(context, "Отключено от ${device.name}", Toast.LENGTH_SHORT)
-                            .show()
-                        gatt.close()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        debugLog.append("coroutine test\n\r ")
+                        debugLog.append("coroutine Test Connected to name : ${device.name} \n\r")
                     }
+                    //debugLog.append("123статус BluetoothGattCallback: $status новый статус $newState ${newState == BluetoothProfile.STATE_CONNECTED}\n\r ")
+                    debugLog.append("test\n\r ")
+                    debugLog.append("Test Connected to name : ${device.name} \n\r")
+                    //super.onConnectionStateChange(gatt, status, newState)
+/*
+                    when (newState) {
+                        BluetoothProfile.STATE_CONNECTED -> {
+                            debugLog.append("Connected to name : ${device.name} \n\r")
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                debugLog.append("Connected with delay to name : ${device.name} gatt: $gatt\n\r")
+                                gatt.discoverServices()
+                            }, 1000)
+                        }
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            debugLog.append("BluetoothProfile.STATE_DISCONNECTED\n\r")
+                            gatt.close()
+                        }
+                        else -> {
+                            debugLog.append("Error unknown state\n\r")
+                        }
+                    }
+*/
                 }
-                override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
+/*                override fun onServicesDiscovered(gatt: BluetoothGatt?, status: Int) {
                     debugLog.append("onServicesDiscovered BlueTooth Le ready\n\r")
                     super.onServicesDiscovered(gatt, status)
                     if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -256,62 +231,46 @@ class SettingsFragment : Fragment() {
                     } else {
                         debugLog.append("Write command Failed:\n\r")
                     }
-                }
+                }*/
 
-            })
-    }
-    fun ByteArray.toHex(): String = joinToString(separator = "") { eachByte -> "%02x".format(eachByte) }
-    fun String.decodeHex(): ByteArray {
-        check(length % 2 == 0) { "Must have an even length" }
-
-        return chunked(2)
-            .map { it.toInt(16).toByte() }
-            .toByteArray()
-    }
-/*
-    @SuppressLint("MissingPermission")
-    private fun enableNotifications(gatt: BluetoothGatt?) {
-        val service = gatt?.getService(SERVICE_UUID)
-        val characteristic = service?.getCharacteristic(CHARACTERISTIC_UUID)
-
-        characteristic?.let { char ->
-            gatt.setCharacteristicNotification(char, true)
-
-            val descriptor = char.getDescriptor(DESCRIPTOR_UUID)
-            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            gatt.writeDescriptor(descriptor)
+            }, TRANSPORT_LE)
         }
     }
-*/
-
 
     @SuppressLint("MissingPermission")
     private fun sendCommandToDevice(gatt: BluetoothGatt?) {
-        val services = gatt?.services
-        debugLog.append("readServices:\n\r")
-        services?.forEach {
-            debugLog.append("${it.uuid}\n\r")
-        }
-        val service = gatt?.getService(services?.first()?.uuid)
-        debugLog.append("readCharacteristics:\n\r")
-        service?.characteristics?.forEach {
-            debugLog.append("${it.uuid}\n\r")
-        }
-        val characteristic = service?.getCharacteristic(service.characteristics?.first()?.uuid)
+        try {
+            val services = gatt?.services
+            debugLog.append("readServices:\n\r")
+            services?.forEach {
+                debugLog.append("service : ${it.uuid}\n\r")
+            }
+            val service = gatt?.getService(services?.first()?.uuid)
+            debugLog.append("readCharacteristics:\n\r")
+            service?.characteristics?.forEach {
+                debugLog.append("${it.uuid}\n\r")
+            }
+/*
+            val characteristic = service?.getCharacteristic(service.characteristics?.first()?.uuid)
 
-        characteristic?.let { char ->
-            // Устанавливаем значение характеристики (команда 0x58)
-            val ReadTemperatureCmd = "58".decodeHex()
-            char.value = ReadTemperatureCmd
-            gatt.writeCharacteristic(char)
+            characteristic?.let { char ->
+                // Устанавливаем значение характеристики (команда 0x58)
+                val ReadTemperatureCmd = "58".decodeHex()
+                char.value = ReadTemperatureCmd
+                gatt.writeCharacteristic(char)
 
-            // Включаем уведомления для характеристики
-            gatt.setCharacteristicNotification(char, true)
+                // Включаем уведомления для характеристики
+                gatt.setCharacteristicNotification(char, true)
 
-            // Устанавливаем дескриптор для уведомлений
-            val descriptor = char.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
-            descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-            gatt.writeDescriptor(descriptor)
+                // Устанавливаем дескриптор для уведомлений
+                val descriptor =
+                    char.getDescriptor(UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"))
+                descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                gatt.writeDescriptor(descriptor)
+            }
+*/
+        } catch (e : Throwable){
+            debugLog.append("Error in sendCommandToDevice" + e.message)
         }
     }
 
